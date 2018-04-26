@@ -1,0 +1,48 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.AboutClassMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.aboutclass.AboutClassData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="phone" property="phone" jdbcType="VARCHAR" />
+	    <result column="grade" property="grade" jdbcType="VARCHAR" />
+	    <result column="subject" property="subject" jdbcType="VARCHAR" />
+	    <result column="create_date" property="create_date" jdbcType="VARCHAR" />
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	</resultMap>
+	<insert id="save" parameterType="sy.service.aboutclass.AboutClassData">
+		insert into t_about_class (id,name,phone,grade,subject,create_date,type) values
+		(
+			#{id,jdbcType=VARCHAR},
+			#{name,jdbcType=VARCHAR},
+			#{phone,jdbcType=VARCHAR},
+			#{grade,jdbcType=VARCHAR},
+			#{subject,jdbcType=VARCHAR},
+			now(),
+			#{type,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<select id="getPageList" parameterType="sy.service.aboutclass.AboutClassData" resultMap="BaseResultMap">
+		select id,name,phone,grade,subject,create_date,type from t_about_class
+		<trim prefix="WHERE" prefixOverrides="AND | OR ">
+    		<if test="id != null and id != ''">
+    			and id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="name != null and name != ''">
+    			and name like CONCAT(CONCAT('%',#{name,jdbcType=VARCHAR}),'%')
+    		</if>
+    		<if test="type !=null and type != ''">
+    			type =  #{type,jdbcType=VARCHAR}
+    		</if>
+    		<if test="phone !=null and phone != ''">
+    			phone =  #{phone,jdbcType=VARCHAR}
+    		</if>
+    	</trim>
+    	order by create_date desc
+	</select>
+	
+	<!-- 修改阅读状态 -->
+	<update id="updateType" parameterType="sy.service.aboutclass.AboutClassData">
+		update t_about_class set type='1' where id=#{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

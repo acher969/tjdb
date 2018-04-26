@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.ModuleMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.module.ModuleData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="url" property="url" jdbcType="VARCHAR" />
+	    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+	    <result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="type" property="type" jdbcType="CHAR" />
+	    <result column="img" property="img" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getTreeByParentId" parameterType="sy.service.module.ModuleData" resultMap="BaseResultMap">
+		select id,name,url,parent_id,order_no,type,img from sys_module
+		where parent_id=#{parentId,jdbcType=VARCHAR} order by order_no
+	</select>
+	
+	<select id="getParentId" parameterType="sy.service.module.ModuleData" resultType="string">
+		select parent_id from sys_module where id=#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getModuleById" parameterType="sy.service.module.ModuleData" resultMap="BaseResultMap">
+		select id,name,url,parent_id,order_no,type,img from sys_module
+		where id=#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<insert id="save" parameterType="sy.service.module.ModuleData">
+		insert into sys_module (id,name,url,parent_id,order_no,type,img) 
+		values
+		(
+			#{id,jdbcType=VARCHAR},
+			#{name,jdbcType=VARCHAR},
+			#{url,jdbcType=VARCHAR},
+			#{parentId,jdbcType=VARCHAR},
+			#{orderNo,jdbcType=VARCHAR},
+			#{type,jdbcType=VARCHAR},
+			#{img,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="deleteById" parameterType="sy.service.module.ModuleData">
+		delete from sys_module where 
+		find_in_set(id,(select getSysModuleChileList(#{id,jdbcType=VARCHAR})))
+	</delete>
+	
+	<update id="updateModule" parameterType="sy.service.module.ModuleData">
+		update sys_module set 
+		name=#{name,jdbcType=VARCHAR},
+		url=#{url,jdbcType=VARCHAR},
+		order_no=#{orderNo,jdbcType=INTEGER} 
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

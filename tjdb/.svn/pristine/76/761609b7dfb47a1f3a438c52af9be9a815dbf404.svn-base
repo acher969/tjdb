@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.RoomMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.room.RoomData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="effective_date" property="effective_date" jdbcType="VARCHAR" />
+	    <result column="failure_date" property="failure_date" jdbcType="VARCHAR" />
+	    <result column="teacher_url" property="teacher_url" jdbcType="VARCHAR" />
+	    <result column="student_url" property="student_url" jdbcType="VARCHAR" />
+	    <result column="teacher_password" property="teacher_password" jdbcType="VARCHAR" />
+	    <result column="assistant_password" property="assistant_password" jdbcType="VARCHAR" />
+	    <result column="student_password" property="student_password" jdbcType="VARCHAR" />
+	    <result column="cjmb" property="cjmb" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    	id, name, effective_date, failure_date, teacher_url,student_url,teacher_password,assistant_password,student_password,cjmb
+  	</sql>
+	<select id="getRoomListPage" resultMap="BaseResultMap" parameterType="sy.service.room.RoomData">
+		select 
+    	<include refid="Base_Column_List" />
+    	from t_room 
+    	<trim prefix="WHERE" prefixOverrides="AND | OR ">
+    		<if test="id != null and id != ''">
+    			and id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="name != null and name != ''">
+    			and name like CONCAT(CONCAT('%',#{name,jdbcType=VARCHAR}),'%')
+    		</if>
+    		<if test="effective_date != null and effective_date != ''">
+    			effective_date =  #{effective_date,jdbcType=VARCHAR}
+    		</if>
+    		<if test="cjmb !=null and cjmb != ''">
+    			cjmb =  #{cjmb,jdbcType=VARCHAR}
+    		</if>
+    	</trim>
+	</select>
+	
+		<insert id="save" parameterType="sy.service.room.RoomData">
+		insert into t_room (id,name,effective_date,failure_date,teacher_url,student_url,teacher_password,assistant_password,student_password,cjmb) 
+		values 
+		(
+			#{id,jdbcType=VARCHAR}, 
+      		#{name,jdbcType=VARCHAR}, 
+      		#{effective_date,jdbcType=VARCHAR},
+      		#{failure_date,jdbcType=VARCHAR},
+      		#{teacher_url,jdbcType=VARCHAR},
+      		#{student_url,jdbcType=VARCHAR},
+      		#{teacher_password,jdbcType=VARCHAR},
+      		#{assistant_password,jdbcType=VARCHAR},
+      		#{student_password,jdbcType=VARCHAR},
+      		#{cjmb,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="delRoomByIds" parameterType="java.util.Arrays">
+		delete from t_room where id in 
+		<foreach item="str" index="index" collection="array" open="(" separator="," close=")">
+			#{str}
+		</foreach>
+	</delete>
+	
+		<select id="getRoomById" parameterType="sy.service.room.RoomData" resultMap="BaseResultMap">
+		select 
+		id,name,effective_date,failure_date,teacher_url,student_url,teacher_password,assistant_password,student_password,cjmb 
+		from t_room
+		where id=#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="update" parameterType="sy.service.room.RoomData">
+		update t_room set name=#{name,jdbcType=VARCHAR},
+			effective_date=#{effective_date,jdbcType=VARCHAR},
+			failure_date=#{failure_date,jdbcType=VARCHAR},
+			teacher_url=#{teacher_url,jdbcType=VARCHAR},
+      		student_url=#{student_url,jdbcType=VARCHAR},
+      		teacher_password=#{teacher_password,jdbcType=VARCHAR},
+      		assistant_password=#{assistant_password,jdbcType=VARCHAR},
+      		student_password=#{student_password,jdbcType=VARCHAR},
+      		cjmb=#{cjmb,jdbcType=VARCHAR}
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	<select id="getLesson" parameterType="String" resultType="INTEGER">
+		select count(*) from t_lesson where room_id=#{str}
+	</select>       		
+      		
+      		
+	
+</mapper>

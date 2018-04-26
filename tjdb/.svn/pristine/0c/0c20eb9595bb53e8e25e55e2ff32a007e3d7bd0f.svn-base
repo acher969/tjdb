@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.LoginMapper" >
+  <resultMap id="BaseResultMap" type="sy.service.login.LoginData" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="active" property="active" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, login_name, password, name, active
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="loginSelect" resultMap="BaseResultMap" parameterType="sy.model.SysUser">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from sys_user
+  	where login_name=#{loginName,jdbcType=VARCHAR} and password=#{password,jdbcType=VARCHAR}
+  </select>
+ 
+  
+  	<resultMap id="RoleResultMap" type="sy.model.SysRole" >
+	    <result column="id" property="id" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="state" property="state" jdbcType="CHAR" />
+  	</resultMap>
+	<select id="getUserRole" resultMap="RoleResultMap" parameterType="java.lang.String">
+		select a.id,a.name,a.order_no,a.state from sys_role a
+		inner join
+		sys_user_role b
+		on
+		a.id=b.role_id
+		where b.user_id=#{id,jdbcType=VARCHAR}
+	</select>	
+	
+	<resultMap id="ModuleResultMap" type="sy.model.SysModule" >
+	    <result column="id" property="id" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="url" property="url" jdbcType="VARCHAR" />
+	    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+	    <result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	    <result column="img" property="img" jdbcType="VARCHAR" />
+  	</resultMap>
+	<select id="getUserTopModule" resultMap="ModuleResultMap" parameterType="sy.model.SysRole">
+		SELECT  a.id,a.name,a.url,a.parent_id,a.order_no,a.type,a.img FROM sys_module a
+		inner join 
+		sys_role_module b
+		on
+		a.id=b.module_id
+		where a.parent_id='root' and a.type='0' and b.role_id in 
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")"> 
+			#{item.id}
+		</foreach>
+	</select>
+	
+	<select id="getLeftModules" resultMap="ModuleResultMap" parameterType="sy.service.login.LoginData">
+		SELECT  a.id,a.name,a.url,a.parent_id,a.order_no,a.type,a.img FROM sys_module a
+		inner join
+		sys_role_module b
+		on
+		a.id=b.module_id
+		where
+		b.role_id in  
+		<foreach collection="roleList" item="item" index="index" separator="," open="(" close=")"> 
+			#{item.id}
+		</foreach>
+		and find_in_set (a.id,(SELECT `getSysModuleChileList`(#{moduleParentId,jdbcType=VARCHAR})))
+		order by a.order_no
+	</select>
+	
+	  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from sys_user
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="sy.model.SysUser" >
+    insert into sys_user (id, login_name, password, 
+      name, active)
+    values (#{id,jdbcType=VARCHAR}, #{loginName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{active,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="sy.model.SysUser" >
+    insert into sys_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="loginName != null" >
+        login_name,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="active != null" >
+        active,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null" >
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null" >
+        #{active,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="sy.model.SysUser" >
+    update sys_user
+    <set >
+      <if test="loginName != null" >
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null" >
+        active = #{active,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="sy.model.SysUser" >
+    update sys_user
+    set login_name = #{loginName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      active = #{active,jdbcType=CHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

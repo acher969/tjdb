@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.LessonMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.lesson.LessonData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="teacher_id" property="teacher_id" jdbcType="VARCHAR" />
+	    <result column="room_id" property="room_id" jdbcType="VARCHAR" />
+	    <result column="class_hour" property="class_hour" jdbcType="VARCHAR" />
+	    <result column="oline_type" property="oline_type" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    	id, name, teacher_id, room_id, class_hour,oline_type
+  	</sql>
+	<select id="getLessonListPage" resultMap="BaseResultMap" parameterType="sy.service.lesson.LessonData">
+		select 
+    	b.id,b.name,c.name as teacher_id,a.name as room_id,b.class_hour,b.oline_type 
+    	from t_room a
+    	inner join
+		t_lesson b
+		on
+		a.id=b.room_id
+		inner join
+		t_user c
+		on
+		c.id=b.teacher_id
+    	<trim prefix="WHERE" prefixOverrides="AND | OR ">
+    		<if test="id != null and id != ''">
+    			and b.id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="name != null and name != ''">
+    			and b.name like CONCAT(CONCAT('%',#{name,jdbcType=VARCHAR}),'%')
+    		</if>
+    		<if test="teacher_id != null and teacher_id != ''">
+    			b.teacher_id =  #{teacher_id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="class_hour !=null and class_hour != ''">
+    			b.class_hour =  #{class_hour,jdbcType=VARCHAR}
+    		</if>
+    	</trim>
+	</select>
+	
+		<insert id="save" parameterType="sy.service.lesson.LessonData">
+		insert into t_lesson (id,name,teacher_id,room_id,class_hour,oline_type) 
+		values 
+		(
+			#{id,jdbcType=VARCHAR}, 
+      		#{name,jdbcType=VARCHAR}, 
+      		#{teacher_id,jdbcType=VARCHAR},
+      		#{room_id,jdbcType=VARCHAR},
+      		#{class_hour,jdbcType=VARCHAR},
+      		#{oline_type,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="delLessonByIds" parameterType="java.util.Arrays">
+		delete from t_lesson where id in 
+		<foreach item="str" index="index" collection="array" open="(" separator="," close=")">
+			#{str}
+		</foreach>
+	</delete>
+	
+		<select id="getLessonById" parameterType="sy.service.lesson.LessonData" resultMap="BaseResultMap">
+		select 
+		id,name,teacher_id,room_id,class_hour,oline_type 
+		from t_lesson
+		where id=#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="update" parameterType="sy.service.lesson.LessonData">
+		update t_lesson set name=#{name,jdbcType=VARCHAR}
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	<resultMap id="TeacherBaseResultMap" type="sy.service.teacher.TeacherData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="login_name" property="login_name" jdbcType="VARCHAR" />
+    	<result column="password" property="password" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="sex" property="sex" jdbcType="VARCHAR" />
+	    <result column="effective_date" property="effective_date" jdbcType="VARCHAR" />
+	    <result column="failure_date" property="failure_date" jdbcType="VARCHAR" />
+	    <result column="nickname" property="nickname" jdbcType="VARCHAR" />
+	    <result column="tel" property="tel" jdbcType="VARCHAR" />
+	    <result column="email" property="email" jdbcType="VARCHAR" />
+	    <result column="role" property="role" jdbcType="VARCHAR" />
+	    <result column="address" property="address" jdbcType="VARCHAR" />
+	    <result column="online_type" property="online_type" jdbcType="VARCHAR" />
+	    <result column="create_date" property="create_date" jdbcType="VARCHAR" />
+	    <result column="active" property="active" jdbcType="CHAR" />
+	</resultMap>      		
+    <select id="getTeacherList" parameterType="sy.service.lesson.LessonData" resultMap="TeacherBaseResultMap">
+		select id,name from t_user where role='1' and name like CONCAT(CONCAT('%',#{teacher_id,jdbcType=VARCHAR}),'%')  limit 10
+	</select>  		
+    <resultMap id="RoomBaseResultMap" type="sy.service.room.RoomData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="effective_date" property="effective_date" jdbcType="VARCHAR" />
+	    <result column="failure_date" property="failure_date" jdbcType="VARCHAR" />
+	    <result column="teacher_url" property="teacher_url" jdbcType="VARCHAR" />
+	    <result column="student_url" property="student_url" jdbcType="VARCHAR" />
+	    <result column="teacher_password" property="teacher_password" jdbcType="VARCHAR" />
+	    <result column="assistant_password" property="assistant_password" jdbcType="VARCHAR" />
+	    <result column="student_password" property="student_password" jdbcType="VARCHAR" />
+	    <result column="cjmb" property="cjmb" jdbcType="VARCHAR" />
+	</resultMap> 		
+	<select id="getRoomList"  parameterType="sy.service.lesson.LessonData" resultMap="RoomBaseResultMap">
+		select id,name from t_room where name like CONCAT(CONCAT('%',#{room_id,jdbcType=VARCHAR}),'%')  limit 10
+	</select> 
+	
+	<select id="haveStudent" parameterType="java.util.Arrays" resultType="INTEGER">
+		select count(*) from t_user_lesson where lesson_id in
+		 		<foreach item="str" index="index" collection="array" open="(" separator="," close=")">
+			#{str}
+		</foreach> and remainder_class_hour>0
+	</select> 
+	
+		<delete id="delUserLesson" parameterType="java.util.Arrays">
+		delete from t_user_lesson where lesson_id in 
+		<foreach item="str" index="index" collection="array" open="(" separator="," close=")">
+			#{str}
+		</foreach>
+	</delete>
+	<select id="haveTeacher" parameterType="sy.service.lesson.LessonData" resultType="INTEGER">
+		select count(*) from t_user where id=#{teacher_id,jdbcType=VARCHAR}
+	</select> 
+	<select id="haveRoom" parameterType="sy.service.lesson.LessonData" resultType="INTEGER">
+		select count(*) from t_room where id=#{room_id,jdbcType=VARCHAR}
+	</select> 
+</mapper>

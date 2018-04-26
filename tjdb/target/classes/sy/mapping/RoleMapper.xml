@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.RoleMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.role.RoleData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="state" property="state" jdbcType="CHAR" />
+	</resultMap>
+	
+	<select id="getRolePageList" parameterType="sy.service.role.RoleData" resultMap="BaseResultMap">
+		select id,name,order_no,state from sys_role
+		<trim prefix="WHERE" prefixOverrides="AND | OR ">
+    		<if test="id != null and id != ''">
+    			and id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="name != null and name != ''">
+    			and name like CONCAT(CONCAT('%',#{name,jdbcType=VARCHAR}),'%')
+    		</if>
+    		<if test="state !=null and state != ''">
+    			state =  #{state,jdbcType=VARCHAR}
+    		</if>
+    	</trim>
+	</select>
+	
+	<resultMap id="ModuleResultMap" type="sy.service.module.ModuleData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="url" property="url" jdbcType="VARCHAR" />
+	    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+	    <result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="type" property="type" jdbcType="CHAR" />
+	    <result column="img" property="img" jdbcType="VARCHAR" />
+	    <result column="checked" property="checked" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="getModuleById" parameterType="java.lang.String" resultMap="ModuleResultMap">
+		select id,name,url,parent_id,order_no,type,img from sys_module
+		where id=#{id,jdbcType=VARCHAR}
+	</select>
+	<select id="getModuleByParentId" parameterType="java.lang.String" resultMap="ModuleResultMap">
+		select a.id,a.name,a.url,a.parent_id,a.order_no,a.type,a.img
+		,(select id from sys_role_module where role_id=#{roleId,jdbcType=VARCHAR} and module_id=a.id) as checked from sys_module a
+		where a.parent_id=#{parentId,jdbcType=VARCHAR}
+	</select>
+	
+	<delete id="deleteRoleModuleByRoleId" parameterType="java.lang.String">
+		delete from sys_role_module where role_id = #{roleId,jdbcType=VARCHAR}
+	</delete>
+	
+	<insert id="insertRoleModule" parameterType="java.util.List">
+		insert into sys_role_module (id,role_id,module_id) values
+		<foreach collection="list" item="item" index="index" separator=","> 
+		(
+			#{item.id}
+			,#{item.roleId}
+			,#{item.moduleId}
+		)
+		</foreach>
+	</insert>
+	
+	<update id="updateState" parameterType="sy.service.role.RoleData">
+		update sys_role set state=#{state,jdbcType=VARCHAR} where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteRoleById" parameterType="sy.service.role.RoleData">
+		delete from sys_role where id=#{id,jdbcType=VARCHAR}
+	</delete>
+
+	<insert id="saveRole" parameterType="sy.service.role.RoleData">
+		insert into sys_role (id,name,state) values
+		(
+			#{id,jdbcType=VARCHAR},
+			#{name,jdbcType=VARCHAR},
+			#{state,jdbcType=VARCHAR}
+		)
+	</insert>
+</mapper>

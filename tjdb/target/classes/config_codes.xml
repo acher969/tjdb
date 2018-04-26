@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codes>
+	<Code><!-- 性别 -->
+		<codeType>sex</codeType><codeName>0</codeName><codeValue>男</codeValue>
+	</Code>
+	<Code><!-- 性别 -->
+		<codeType>sex</codeType><codeName>1</codeName><codeValue>女</codeValue>
+	</Code>
+	<Code><!-- 启用状态 -->
+		<codeType>type</codeType><codeName>0</codeName><codeValue>停用</codeValue>
+	</Code>
+	<Code><!-- 启用状态 -->
+		<codeType>type</codeType><codeName>1</codeName><codeValue>启用</codeValue>
+	</Code>
+<!-- <Code>
+		<codeType>cjmb</codeType><codeName>0</codeName><codeValue>大讲堂</codeValue>
+	</Code>
+-->
+	<Code><!-- 场景模板 -->
+		<codeType>cjmb</codeType><codeName>1</codeName><codeValue>小班课</codeValue>
+	</Code>
+	
+	<Code><!-- 已读-->
+		<codeType>read_type</codeType><codeName>1</codeName><codeValue>已读</codeValue>
+	</Code>
+	<Code><!-- 未读 -->
+		<codeType>read_type</codeType><codeName>0</codeName><codeValue>未读</codeValue>
+	</Code>
+</codes>

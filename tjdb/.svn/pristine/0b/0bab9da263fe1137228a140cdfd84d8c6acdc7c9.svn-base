@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.UserMapper" >
+	<resultMap id="BaseResultMap" type="sy.service.user.UserData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    	<result column="password" property="password" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="active" property="active" jdbcType="CHAR" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    	id, login_name, password, name, active
+  	</sql>
+	<select id="getUserListPage" resultMap="BaseResultMap" parameterType="sy.service.user.UserData">
+		select 
+    	<include refid="Base_Column_List" />
+    	from sys_user 
+    	<trim prefix="WHERE" prefixOverrides="AND | OR ">
+    		<if test="id != null and id != ''">
+    			and id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="loginName != null and loginName != ''">
+    			and login_name = #{loginName,jdbcType=VARCHAR}
+    		</if>
+    		<if test="name != null and name != ''">
+    			and name like CONCAT(CONCAT('%',#{name,jdbcType=VARCHAR}),'%')
+    		</if>
+    		<if test="active !=null and active != ''">
+    			active =  #{active,jdbcType=VARCHAR}
+    		</if>
+    	</trim>
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="delUserByIds" parameterType="java.util.Arrays">
+		delete from sys_user where id in 
+		<foreach item="str" index="index" collection="array" open="(" separator="," close=")">
+			#{str}
+		</foreach>
+	</delete>
+
+	<select id="saveSelect" parameterType="sy.service.user.UserData" resultType="INTEGER">
+		select count(*) from sys_user where login_name=#{loginName,jdbcType=VARCHAR}
+	</select> 
+	
+	<insert id="save" parameterType="sy.service.user.UserData">
+		insert into sys_user (id,login_name,password,name,active) 
+		values 
+		(
+			#{id,jdbcType=VARCHAR}, 
+			#{loginName,jdbcType=VARCHAR}, 
+			#{password,jdbcType=VARCHAR}, 
+      		#{name,jdbcType=VARCHAR}, 
+      		#{active,jdbcType=CHAR}
+		)
+	</insert>
+	
+	<update id="updateActive" parameterType="sy.service.user.UserData" >
+		update sys_user set active=#{active,jdbcType=CHAR} where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="getUserById" parameterType="sy.service.user.UserData" resultMap="BaseResultMap">
+		select 
+		id,login_name,name,active 
+		from sys_user
+		where id=#{id,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="update" parameterType="sy.service.user.UserData">
+		update sys_user set name=#{name,jdbcType=VARCHAR},login_name=#{loginName,jdbcType=VARCHAR}
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updatePwd" parameterType="sy.service.user.UserData">
+		update sys_user set password=#{password,jdbcType=VARCHAR}
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<resultMap id="RoleResultMap" type="sy.service.role.RoleData" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+    	<result column="name" property="name" jdbcType="VARCHAR" />
+    	<result column="order_no" property="orderNo" jdbcType="INTEGER" />
+	    <result column="state" property="state" jdbcType="CHAR" />
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="getUserRoleTree" parameterType="java.lang.String" resultMap="RoleResultMap">
+		select a.id,a.name,a.order_no,a.state,
+		(select id from sys_user_role where user_id=#{userId,jdbcType=VARCHAR} and role_id=a.id) as type
+		 from sys_role a
+	</select>
+	
+	<delete id="deleteUserRoleByUserId" parameterType="java.lang.String">
+		delete from sys_user_role where user_id=#{userId,jdbcType=VARCHAR}
+	</delete>
+	
+	<insert id="saveUserRole" parameterType="java.util.List">
+		insert into sys_user_role (id,role_id,user_id) values
+		<foreach collection="list" item="item" index="index" separator=","> 
+		(
+			#{item.id}
+			,#{item.roleId}
+			,#{item.userId}
+		)
+		</foreach>
+	</insert>
+	
+	
+	
+</mapper>

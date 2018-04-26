@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="sy.dao.ClassHourMapper" >
+	<resultMap id="StudentResultMap" type="sy.service.classhour.ClassHourData" >
+		<result column="student_id" property="studentData.id" jdbcType="VARCHAR" />
+	    <result column="student_name" property="studentData.name" jdbcType="VARCHAR" />
+	    <result column="student_sex" property="studentData.sex" jdbcType="VARCHAR" />
+	    <result column="student_effective_date" property="studentData.effective_date" jdbcType="VARCHAR" />
+	    <result column="student_failure_date" property="studentData.failure_date" jdbcType="VARCHAR" />
+	    <result column="student_nickname" property="studentData.nickname" jdbcType="VARCHAR" />
+	    <result column="student_tel" property="studentData.tel" jdbcType="VARCHAR" />
+	    <result column="student_email" property="studentData.email" jdbcType="VARCHAR" />
+	    <result column="student_role" property="studentData.role" jdbcType="VARCHAR" />
+	    <result column="student_address" property="studentData.address" jdbcType="VARCHAR" />
+	    <result column="student_online_type" property="studentData.online_type" jdbcType="VARCHAR" />
+	    <result column="student_create_date" property="studentData.create_date" jdbcType="VARCHAR" />
+	    <result column="student_active" property="studentData.active" jdbcType="CHAR" />
+	    <result column="student_login_name" property="studentData.login_name" jdbcType="VARCHAR" />
+	    <result column="class_hour" property="class_hour" jdbcType="VARCHAR" />
+	    <result column="teacher_name" property="teacher_name" jdbcType="VARCHAR" />
+	    <result column="remainder_class_hour" property="remainder_class_hour" jdbcType="VARCHAR" />
+	    <result column="lesson_name" property="lesson_name" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getStudentPageList" parameterType="sy.service.classhour.ClassHourData" resultMap="StudentResultMap">
+		select id as student_id,name as student_name,tel as student_tel,email as student_email,login_name as student_login_name,
+		active as student_active from t_user where role='0'
+		<if test="studentData.name != '' and studentData.name != null">
+			and name like CONCAT(CONCAT('%',#{studentData.name,jdbcType=VARCHAR}),'%')
+		</if>
+		<if test="studentData.login_name != '' and studentData.login_name != null">
+			and login_name=#{studentData.login_name,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<select id="getStudentLessonList" parameterType="java.lang.String" resultMap="StudentResultMap">
+		select a.id as student_id,c.name as lesson_name,c.class_hour,(select name from t_user where id=c.teacher_id) as teacher_name,b.remainder_class_hour from t_user a
+		inner join
+		t_user_lesson b
+		on
+		a.id=b.user_id
+		inner join
+		t_lesson c
+		on
+		b.lesson_id=c.id
+		where a.id=#{student_id,jdbcType=VARCHAR} 
+	</select>
+</mapper>	
